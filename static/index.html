@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pinyin Table Workspace</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body class="right-collapsed">
+    <div class="app-shell">
+      <aside class="panel panel-left" aria-label="Nội dung">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-title-kicker">Explorer</span>
+            <h1>Nội dung</h1>
+          </div>
+          <button
+            class="panel-toggle"
+            id="toggle-left-panel"
+            type="button"
+            aria-label="Thu gọn panel trái"
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div class="panel-section">
+            <p class="panel-section-label">Workspace</p>
+            <button class="content-item is-active" type="button">
+              <span class="content-item-title">Pinyin Table</span>
+              <span class="content-item-meta">Bảng chính</span>
+            </button>
+            <button class="content-item is-disabled" type="button" disabled>
+              <span class="content-item-title">Nội dung kế tiếp</span>
+              <span class="content-item-meta">Thêm sau</span>
+            </button>
+          </div>
+
+          <div class="panel-section panel-footnote">
+            <p>Notes are persisted on disk in <code>data/notes.json</code>.</p>
+          </div>
+        </div>
+
+        <button
+          class="panel-collapsed-chip"
+          id="expand-left-panel"
+          type="button"
+          aria-label="Mở panel trái"
+        >
+          Nội dung
+        </button>
+      </aside>
+
+      <main class="panel panel-center" aria-label="Pinyin Table">
+        <div class="tab-strip">
+          <button class="tab is-active" type="button">Pinyin Table</button>
+          <div class="tab-strip-actions">
+            <button class="ghost-button" id="mobile-left-shortcut" type="button">
+              Explorer
+            </button>
+            <span class="tab-hint">Di chuột để xem tooltip. Bấm vào ô để mở ghi chú.</span>
+          </div>
+        </div>
+
+        <section class="editor-canvas">
+          <div class="chart-frame">
+            <div class="chart-pad">
+              <div class="chart-scroll">
+                <table class="chart-table" id="pinyin-table"></table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="panel panel-right" aria-label="Chi tiết">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-title-kicker">Inspector</span>
+            <h2>Chi tiết ô</h2>
+          </div>
+          <button
+            class="panel-toggle"
+            id="toggle-right-panel"
+            type="button"
+            aria-label="Thu gọn panel phải"
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div class="panel-body panel-body-form">
+          <div class="detail-empty" id="detail-empty-state">
+            <p>Chọn một ô trong bảng để xem và lưu ghi chú.</p>
+          </div>
+
+          <form class="detail-form" id="detail-form" autocomplete="off">
+            <div class="detail-meta">
+              <div class="meta-card">
+                <span class="meta-label">Ô gốc</span>
+                <strong id="original-syllable">-</strong>
+              </div>
+              <div class="meta-card">
+                <span class="meta-label">Vị trí</span>
+                <strong id="cell-position">-</strong>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>Phiên Âm</span>
+              <input
+                id="phonetic-input"
+                name="phonetic"
+                type="text"
+                placeholder="Phiên âm đã chọn"
+              >
+            </label>
+
+            <label class="field">
+              <span>Ghi chú</span>
+              <textarea
+                id="note-input"
+                name="note"
+                rows="12"
+                placeholder="Ghi nhớ, ví dụ, mẹo phát âm..."
+              ></textarea>
+            </label>
+
+            <label class="toggle-field" for="highlight-toggle">
+              <span>Highlight Cell</span>
+              <span class="toggle-field-copy">Marker light yellow</span>
+              <input
+                id="highlight-toggle"
+                name="highlighted"
+                type="checkbox"
+              >
+              <span class="toggle-switch" aria-hidden="true"></span>
+            </label>
+
+            <div class="save-state" id="save-state">Đang kết nối tới backend...</div>
+          </form>
+        </div>
+
+        <button
+          class="panel-collapsed-chip"
+          id="expand-right-panel"
+          type="button"
+          aria-label="Mở panel phải"
+        >
+          Chi tiết
+        </button>
+      </aside>
+    </div>
+
+    <div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true"></div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

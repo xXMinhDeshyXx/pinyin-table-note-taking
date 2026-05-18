@@ -1,0 +1,12 @@
+[project]
+name = "thanh-van-pinyin-table"
+version = "0.1.0"
+description = "Personal pinyin table workspace with JSON-backed notes."
+requires-python = ">=3.9"
+dependencies = [
+  "fastapi>=0.115.0,<1.0.0",
+  "uvicorn[standard]>=0.30.0,<1.0.0",
+]
+
+[tool.uv]
+package = false
