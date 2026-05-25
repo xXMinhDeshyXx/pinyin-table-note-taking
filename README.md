@@ -2,6 +2,8 @@
 
 Personal static study workspace for Mandarin pinyin. The app uses a FastAPI backend, a plain HTML/CSS/JavaScript frontend, and JSON files for local persistence.
 
+I was looking for a way to take notes of my Mandarin class so I vibecoded for 10 minutes and it popped out this thing. Quite broken but it gets the job done.
+
 ## Requirements
 
 - Python 3.9 or newer
