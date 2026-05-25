@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pinyin Table Workspace</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v=20260519-lecture-notes-delete">
   </head>
-  <body class="right-collapsed">
+  <body class="right-collapsed workspace-pinyin">
     <div class="app-shell">
       <aside class="panel panel-left" aria-label="Nội dung">
         <div class="panel-header">
@@ -27,18 +27,18 @@
         <div class="panel-body">
           <div class="panel-section">
             <p class="panel-section-label">Workspace</p>
-            <button class="content-item is-active" type="button">
+            <button class="content-item is-active" type="button" data-workspace-target="pinyin">
               <span class="content-item-title">Pinyin Table</span>
               <span class="content-item-meta">Bảng chính</span>
             </button>
-            <button class="content-item is-disabled" type="button" disabled>
-              <span class="content-item-title">Nội dung kế tiếp</span>
-              <span class="content-item-meta">Thêm sau</span>
+            <button class="content-item" type="button" data-workspace-target="threads">
+              <span class="content-item-title">Lecture Notes</span>
+              <span class="content-item-meta">Threads / Kênh ghi chú dài</span>
             </button>
           </div>
 
           <div class="panel-section panel-footnote">
-            <p>Notes are persisted on disk in <code>data/notes.json</code>.</p>
+            <p><span id="workspace-storage-label">Notes are persisted on disk in <code>data/notes.json</code>.</span></p>
           </div>
         </div>
 
@@ -52,24 +52,39 @@
         </button>
       </aside>
 
-      <main class="panel panel-center" aria-label="Pinyin Table">
+      <main class="panel panel-center" aria-label="Workspace content">
         <div class="tab-strip">
-          <button class="tab is-active" type="button">Pinyin Table</button>
+          <button class="tab is-active" id="workspace-tab" type="button">Pinyin Table</button>
           <div class="tab-strip-actions">
             <button class="ghost-button" id="mobile-left-shortcut" type="button">
               Explorer
             </button>
-            <span class="tab-hint">Di chuột để xem tooltip. Bấm vào ô để mở ghi chú.</span>
+            <span class="tab-hint" id="workspace-hint">Di chuột để xem tooltip. Bấm vào ô để mở ghi chú.</span>
           </div>
         </div>
 
-        <section class="editor-canvas">
-          <div class="chart-frame">
-            <div class="chart-pad">
-              <div class="chart-scroll">
-                <table class="chart-table" id="pinyin-table"></table>
+        <section class="workspace-view is-active" id="workspace-pinyin-view">
+          <div class="editor-canvas">
+            <div class="chart-frame">
+              <div class="chart-pad">
+                <div class="chart-scroll">
+                  <table class="chart-table" id="pinyin-table"></table>
+                </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="workspace-view" id="workspace-threads-view">
+          <div class="threads-pane">
+            <div class="threads-toolbar">
+              <div>
+                <p class="panel-section-label">Lecture Notes Channel</p>
+                <h3 class="threads-title">Lecture Threadboard</h3>
+              </div>
+              <button class="primary-button" id="create-thread-button" type="button">+ New Note</button>
+            </div>
+            <div class="thread-list" id="thread-list"></div>
           </div>
         </section>
       </main>
@@ -78,7 +93,7 @@
         <div class="panel-header">
           <div class="panel-title">
             <span class="panel-title-kicker">Inspector</span>
-            <h2>Chi tiết ô</h2>
+            <h2 id="detail-panel-title">Chi tiết ô</h2>
           </div>
           <button
             class="panel-toggle"
@@ -91,55 +106,218 @@
         </div>
 
         <div class="panel-body panel-body-form">
-          <div class="detail-empty" id="detail-empty-state">
-            <p>Chọn một ô trong bảng để xem và lưu ghi chú.</p>
-          </div>
-
-          <form class="detail-form" id="detail-form" autocomplete="off">
-            <div class="detail-meta">
-              <div class="meta-card">
-                <span class="meta-label">Ô gốc</span>
-                <strong id="original-syllable">-</strong>
-              </div>
-              <div class="meta-card">
-                <span class="meta-label">Vị trí</span>
-                <strong id="cell-position">-</strong>
-              </div>
+          <section class="detail-workspace is-active" id="detail-pinyin-workspace">
+            <div class="detail-empty" id="detail-empty-state">
+              <p>Chọn một ô trong bảng để xem và lưu ghi chú.</p>
             </div>
 
-            <label class="field">
-              <span>Phiên Âm</span>
-              <input
-                id="phonetic-input"
-                name="phonetic"
-                type="text"
-                placeholder="Phiên âm đã chọn"
-              >
-            </label>
+            <form class="detail-form" id="detail-form" autocomplete="off">
+              <div class="detail-meta">
+                <div class="meta-card">
+                  <span class="meta-label">Ô gốc</span>
+                  <strong id="original-syllable">-</strong>
+                </div>
+                <div class="meta-card">
+                  <span class="meta-label">Vị trí</span>
+                  <strong id="cell-position">-</strong>
+                </div>
+              </div>
 
-            <label class="field">
-              <span>Ghi chú</span>
-              <textarea
-                id="note-input"
-                name="note"
-                rows="12"
-                placeholder="Ghi nhớ, ví dụ, mẹo phát âm..."
-              ></textarea>
-            </label>
+              <label class="field">
+                <span>Phiên Âm</span>
+                <input
+                  id="phonetic-input"
+                  name="phonetic"
+                  type="text"
+                  placeholder="Phiên âm đã chọn"
+                >
+              </label>
 
-            <label class="toggle-field" for="highlight-toggle">
-              <span>Highlight Cell</span>
-              <span class="toggle-field-copy">Marker light yellow</span>
-              <input
-                id="highlight-toggle"
-                name="highlighted"
-                type="checkbox"
-              >
-              <span class="toggle-switch" aria-hidden="true"></span>
-            </label>
+              <label class="field">
+                <span>Ghi chú</span>
+                <textarea
+                  id="note-input"
+                  name="note"
+                  rows="12"
+                  placeholder="Ghi nhớ, ví dụ, mẹo phát âm..."
+                ></textarea>
+              </label>
 
-            <div class="save-state" id="save-state">Đang kết nối tới backend...</div>
-          </form>
+              <label class="toggle-field" for="highlight-toggle">
+                <span>Highlight Cell</span>
+                <span class="toggle-field-copy">Marker light yellow</span>
+                <input
+                  id="highlight-toggle"
+                  name="highlighted"
+                  type="checkbox"
+                >
+                <span class="toggle-switch" aria-hidden="true"></span>
+              </label>
+
+              <div class="save-state" id="save-state">Đang kết nối tới backend...</div>
+            </form>
+          </section>
+
+          <section class="detail-workspace" id="detail-threads-workspace">
+            <div class="detail-empty" id="thread-empty-state">
+              <p>Chọn một thread hoặc tạo thread mới để bắt đầu viết.</p>
+            </div>
+
+            <form class="thread-editor" id="thread-editor-form" autocomplete="off">
+              <div class="thread-editor-top">
+                <div class="thread-editor-page">
+                  <label class="field">
+                    <span>Title</span>
+                    <input
+                      id="thread-title-input"
+                      name="thread-title"
+                      type="text"
+                      placeholder="Untitled thread"
+                    >
+                  </label>
+
+                  <label class="field thread-content-field">
+                    <span>Page</span>
+                    <textarea
+                      id="thread-content-input"
+                      name="thread-content"
+                      rows="24"
+                      placeholder="# Start writing&#10;&#10;Use this like a Notion or Obsidian page."
+                    ></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <section class="lecture-form">
+                <div class="lecture-form-header">
+                  <div>
+                    <p class="panel-section-label">Lecture Template</p>
+                    <h3 class="lecture-form-title">Mẫu sổ ghi chép bài giảng</h3>
+                  </div>
+                </div>
+
+                <div class="lecture-grid lecture-grid-compact">
+                  <label class="field">
+                    <span>HSK</span>
+                    <input id="lecture-hsk-input" name="lecture-hsk" type="text" placeholder="HSK level">
+                  </label>
+
+                  <label class="field">
+                    <span>Bài</span>
+                    <input id="lecture-lesson-input" name="lecture-lesson" type="text" placeholder="Lesson number">
+                  </label>
+                </div>
+
+                <section class="lecture-section">
+                  <div class="lecture-section-head">
+                    <span class="lecture-section-index">1</span>
+                    <div>
+                      <h4>Từ mới</h4>
+                      <p>Chia theo nhóm từ loại từ mẫu PDF.</p>
+                    </div>
+                  </div>
+
+                  <div class="lecture-grid">
+                    <label class="field">
+                      <span>Danh từ / 名词 (N.)</span>
+                      <textarea id="lecture-nouns-input" rows="4" placeholder="Từ mới danh từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Động từ / 动词 (V.)</span>
+                      <textarea id="lecture-verbs-input" rows="4" placeholder="Từ mới động từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Liên từ / 连词</span>
+                      <textarea id="lecture-conjunctions-input" rows="4" placeholder="Liên từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Cụm từ / 短语</span>
+                      <textarea id="lecture-phrases-input" rows="4" placeholder="Cụm từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Lượng từ / 量词</span>
+                      <textarea id="lecture-measures-input" rows="4" placeholder="Lượng từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Số / 数词</span>
+                      <textarea id="lecture-numbers-input" rows="4" placeholder="Số từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Tính từ / 形容词</span>
+                      <textarea id="lecture-adjectives-input" rows="4" placeholder="Tính từ"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Hậu tố / 后缀</span>
+                      <textarea id="lecture-suffixes-input" rows="4" placeholder="Hậu tố"></textarea>
+                    </label>
+
+                    <label class="field lecture-grid-span-2">
+                      <span>Đại từ / 代词</span>
+                      <textarea id="lecture-pronouns-input" rows="4" placeholder="Đại từ"></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="lecture-section">
+                  <div class="lecture-section-head">
+                    <span class="lecture-section-index">2</span>
+                    <div>
+                      <h4>Từ khóa mới</h4>
+                      <p>Từ khóa, cụm từ và câu.</p>
+                    </div>
+                  </div>
+
+                  <div class="lecture-grid">
+                    <label class="field">
+                      <span>Từ khóa</span>
+                      <textarea id="lecture-keywords-input" rows="5" placeholder="Từ khóa"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Cụm từ và câu</span>
+                      <textarea id="lecture-keyphrases-input" rows="5" placeholder="Cụm từ và câu"></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="lecture-section">
+                  <div class="lecture-section-head">
+                    <span class="lecture-section-index">3</span>
+                    <div>
+                      <h4>Ngữ pháp</h4>
+                    </div>
+                  </div>
+                  <label class="field">
+                    <span>Ngữ pháp</span>
+                    <textarea id="lecture-grammar-input" rows="6" placeholder="Mẫu ngữ pháp, cấu trúc, ghi chú"></textarea>
+                  </label>
+                </section>
+
+                <section class="lecture-section">
+                  <div class="lecture-section-head">
+                    <span class="lecture-section-index">4</span>
+                    <div>
+                      <h4>Câu hỏi</h4>
+                    </div>
+                  </div>
+                  <label class="field">
+                    <span>Câu hỏi</span>
+                    <textarea id="lecture-questions-input" rows="6" placeholder="Câu hỏi cần ôn lại"></textarea>
+                  </label>
+                </section>
+              </section>
+
+              <div class="save-state" id="thread-save-state">Threads are saved to data/threads.json.</div>
+              <button class="danger-button" id="delete-thread-button" type="button">Delete Thread</button>
+            </form>
+          </section>
         </div>
 
         <button
@@ -155,6 +333,6 @@
 
     <div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true"></div>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=20260519-lecture-notes-delete"></script>
   </body>
 </html>
